@@ -34,7 +34,7 @@ void setup() {
        
     if (!connected) {
       Serial.print("Going DeepSleep");
-      DisplayMessage("Going" , "DeepSleep", "100 sec");
+      DisplayMessage("Failed to connect" , "Sleeping for", "100 seconds...");
       ESP.deepSleep(100000); // go deepsleep for 100 sec and try all over again
     }
 }
@@ -58,6 +58,7 @@ bool ConnectToWifi(char* ssid, char* password, int timeout){
     return true;}
 String getCryptoQuote(String  baseCurrency, String  targetCurrencies)
 {
+  DisplayMessage("Calling REST API", "https://min-api", ".cryptocompare");  
   HTTPClient http;
   USE_SERIAL.print("[HTTP] begin...\n");
   String currencyRateEndPoint = "https://min-api.cryptocompare.com/data/price?fsym=" + baseCurrency + "&tsyms=" + targetCurrencies;
@@ -84,31 +85,28 @@ String getCryptoQuote(String  baseCurrency, String  targetCurrencies)
 }
 
 void loop() {   
-    DisplayMessage(" Calling ","API...");
-    if((WiFiMulti.run() == WL_CONNECTED)) {     
-      String rates = getCryptoQuote("CAD", "KCS,ETH,NEO,DENT,DRGN,PRL,DENT");      
-      
-      float KCSPrice = GetCryptoPrice(rates, "KCS", 51.8);
-      float NEOPrice = GetCryptoPrice(rates, "NEO", 5.96); 
-      float ETHPrice = GetCryptoPrice(rates, "ETH", 0.609); 
-      float DRGNPrice = GetCryptoPrice(rates, "DRGN", 134.64);     
-      float PRLPrice = GetCryptoPrice(rates, "PRL", 472.18);
-      float DENTPrice = GetCryptoPrice(rates, "DENT", 6488); 
-      float TotalPackage = KCSPrice +NEOPrice+ ETHPrice + DRGNPrice + PRLPrice + DENTPrice;
-      String priceAsString = floatToString(TotalPackage); 
-      DisplayMessage("Total price",priceAsString);
-      delay(10000);
-      
-      DisplayPackagePrice("KCS", KCSPrice, 2000);     
-      DisplayPackagePrice("NEO", NEOPrice, 2000);
-      DisplayPackagePrice("ETH", ETHPrice, 2000);
-      DisplayPackagePrice("DRGN", DRGNPrice, 2000);
-      DisplayPackagePrice("PRL", PRLPrice, 2000); 
-      DisplayPackagePrice("DENT", DENTPrice, 2000);   
+        
+    String rates = getCryptoQuote("CAD", "KCS,ETH,NEO,DENT,DRGN,PRL,DENT");      
+    float KCSPrice = GetCryptoPrice(rates, "KCS", 51.8);
+    float NEOPrice = GetCryptoPrice(rates, "NEO", 5.96); 
+    float ETHPrice = GetCryptoPrice(rates, "ETH", 0.609); 
+    float DRGNPrice = GetCryptoPrice(rates, "DRGN", 134.64);     
+    float PRLPrice = GetCryptoPrice(rates, "PRL", 472.18);
+    float DENTPrice = GetCryptoPrice(rates, "DENT", 6488); 
+    float TotalPackage = KCSPrice +NEOPrice+ ETHPrice + DRGNPrice + PRLPrice + DENTPrice;
+    String priceAsString = floatToString(TotalPackage); 
+    DisplayMessage("Total price",priceAsString);
+    delay(10000);
+    
+    DisplayPackagePrice("KCS", KCSPrice, 2000);     
+    DisplayPackagePrice("NEO", NEOPrice, 2000);
+    DisplayPackagePrice("ETH", ETHPrice, 2000);
+    DisplayPackagePrice("DRGN", DRGNPrice, 2000);
+    DisplayPackagePrice("PRL", PRLPrice, 2000); 
+    DisplayPackagePrice("DENT", DENTPrice, 2000);   
 
-      DisplayMessage("Total price", priceAsString);
-     }
-
+    DisplayMessage("Total price", priceAsString);
+   
     delay(10000);
 }
 
@@ -165,11 +163,11 @@ void DisplayMessage(String line1, String line2, String line3){
   display.clearDisplay();
   display.println(line1);
 
-  if(line2.length() < 8){
+  if(line2.length() < 8 & line3.length() == 0){
     display.setTextSize(2);  
   }else{
      display.setTextSize(1);  
-  }  
+  }
   display.setCursor(15,10);
   display.println(line2);
 
