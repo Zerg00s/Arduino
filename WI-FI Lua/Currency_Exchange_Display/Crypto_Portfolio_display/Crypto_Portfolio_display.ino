@@ -4,24 +4,20 @@
 // SCL to D1
 // SDA TO D2
 
-#include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <ESP8266WiFiMulti.h>
 #include <ESP8266HTTPClient.h>
-#include <string.h>
 #include <ArduinoJson.h>
+#include <FS.h>
+
 #define USE_SERIAL Serial
-ESP8266WiFiMulti WiFiMulti;
+
 
 char* ssid2 = "Denis-wifi";
 char* password2 = "welcomehome";
 char* ssid1 = "PAI-Mobile";
 char* password1 = "Suite 500";
-
 
 void setup() {
     USE_SERIAL.begin(9600);
