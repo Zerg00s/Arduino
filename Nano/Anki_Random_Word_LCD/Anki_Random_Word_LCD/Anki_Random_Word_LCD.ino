@@ -61,10 +61,9 @@ void button_pressed() {
   state = !state;
   Serial.println(butValue);
   CurrentDeck = random(0, NumberOfDecks);
-  Serial.println("CurrentDeck");
+  Serial.print("CurrentDeck: ");
   Serial.println(CurrentDeck);
 }
-
 
 void printRandomNote() {
   int counter = 0;
@@ -73,9 +72,9 @@ void printRandomNote() {
   char word[150];
 
   int deckSize = getSize(AnkiDecks[CurrentDeck]);
-  Serial.println("deckSize size:"); Serial.print(deckSize);
+  Serial.print("deckSize size: "); Serial.println(deckSize);
   int randomIndexInDeck = random(0, deckSize);
-  Serial.println("random deck index:");  Serial.print(randomIndexInDeck);
+  Serial.print("random deck index: ");  Serial.println(randomIndexInDeck);
   counter = randomIndexInDeck;
   do {
     myChar =  pgm_read_byte_near(AnkiDecks[CurrentDeck] + counter);
