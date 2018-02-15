@@ -3,7 +3,13 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include <Adafruit_SSD1306.h>
+#include <Adafruit_SSD1306.h> // SET SCREEN RESOLUTION: The Adafruit_SSD1306.h library cannot determine the screen size via software. You have to specify it in the header file. Go into the library folder and open the file Adafruit_SSD1306.h. Toward the top you'll see a section of comments that tell how how to edit the file for different kinds of display.
+// Libraries location: C:\Program Files (x86)\Arduino\libraries
+
+// PREREQUISITES: 
+// HOW TO INSTALL DISPLAY LIBRARY: https://learn.adafruit.com/monochrome-oled-breakouts/arduino-library-and-examples
+
+
 
 // Kuman 0.96 inch I2c Serial LCD Display:
 // SDA - A4
@@ -107,7 +113,7 @@ void ShowCard(String card) {
 
   // Output the index of the deck as a debug message:
   display.setTextSize(1);
-  display.setCursor(116, 25); //Width=128(real = 116), Height=64(real=25)
+  display.setCursor(113, 55); //Width=128(real = 116), Height=64
   display.print(CurrentDeck);
 
   display.display();
