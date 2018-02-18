@@ -16,15 +16,20 @@
 
 char* ssid2 = "Denis-wifi";
 char* password2 = "welcomehome";
-char* ssid1 = "PAI-Mobile";
-char* password1 = "Suite 500";
+//char* ssid1 = "PAI-Mobile";
+//char* password1 = "Suite 500";
+
+char* ssid1 = "Site 3";
+char* password1 = "makestuff";
+
+String totalPriceAsString = "";
 
 void setup() {
     USE_SERIAL.begin(9600);
 
-    bool connected = ConnectToWifi(ssid1, password1, 5000);
+    bool connected = ConnectToWifi(ssid1, password1, 15000);
     if (!connected){      
-       connected = ConnectToWifi(ssid2, password2, 5000);
+       connected = ConnectToWifi(ssid2, password2, 15000);
     }
        
     if (!connected) {
@@ -36,9 +41,9 @@ void setup() {
 
 bool ConnectToWifi(char* ssid, char* password, int timeout){
     Serial.println();
-    Serial.print("Connecting to ");
+    Serial.print("Connecting");
     Serial.println(ssid);
-    DisplayMessage("Connecting to", ssid);    
+    DisplayMessage("Connecting", ssid);    
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);  
     
@@ -89,8 +94,8 @@ void loop() {
     float PRLPrice = GetCryptoPrice(rates, "PRL", 472.18);
     float DENTPrice = GetCryptoPrice(rates, "DENT", 6488); 
     float TotalPackage = KCSPrice +NEOPrice+ ETHPrice + DRGNPrice + PRLPrice + DENTPrice;
-    String priceAsString = floatToString(TotalPackage); 
-    DisplayMessage("Total price",priceAsString);
+    totalPriceAsString = floatToString(TotalPackage); 
+    DisplayMessage("Total", "$" + totalPriceAsString);
     delay(10000);
     
     DisplayPackagePrice("KCS", KCSPrice, 2000);     
@@ -100,7 +105,7 @@ void loop() {
     DisplayPackagePrice("PRL", PRLPrice, 2000); 
     DisplayPackagePrice("DENT", DENTPrice, 2000);   
 
-    DisplayMessage("Total price", priceAsString);
+    DisplayMessage("Total", "$"+ totalPriceAsString);
    
     delay(10000);
 }
@@ -109,7 +114,7 @@ void DisplayPackagePrice(String symbol, float price,  int delayDuration)
 {
   String priceAsString = floatToString(price); 
   USE_SERIAL.println(symbol + " package price: " + priceAsString );   
-  DisplayMessage(symbol + " package: ",  priceAsString);
+  DisplayMessage(symbol + " pack",  "$"+priceAsString, "$"+totalPriceAsString);
   delay(delayDuration);
 }
 
@@ -148,26 +153,37 @@ void DisplayMessage(String line1, String line2){
  DisplayMessage(line1, line2, "");
 }
 void DisplayMessage(String line1, String line2, String line3){
+  //Width=128, Height=64
   Serial.println("Showing stuff... " + line1 +" " + line2);
   Adafruit_SSD1306 display(-1); // NodeMCU | !IMPORTANT
   // Adafruit_SSD1306 display(4); // NANO
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); 
-  display.setTextSize(1);
+  if(line1.length() > 10) {
+    display.setTextSize(1);  
+  }else{
+     display.setTextSize(2);  
+  }
+
   display.setTextColor(WHITE);
-  display.setCursor(10,0);
+  display.setCursor(0,0);
   display.clearDisplay();
   display.println(line1);
 
-  if(line2.length() < 8 & line3.length() == 0){
-    display.setTextSize(2);  
+  if(line2.length() > 10) {
+    display.setTextSize(1);  
   }else{
-     display.setTextSize(1);  
+     display.setTextSize(2);  
   }
-  display.setCursor(15,10);
+  display.setCursor(0,20);
   display.println(line2);
 
-  display.setTextSize(1);  
-  display.setCursor(10,20);
+  if(line3.length() > 10) {
+    display.setTextSize(1);  
+  }else{
+     display.setTextSize(2);  
+  }
+  
+  display.setCursor(0,40);
   display.println(line3);
   
   display.display();
