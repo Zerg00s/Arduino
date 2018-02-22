@@ -27,9 +27,9 @@ String totalPriceAsString = "";
 void setup() {
     USE_SERIAL.begin(9600);
 
-    bool connected = ConnectToWifi(ssid1, password1, 15000);
+    bool connected = ConnectToWifi(ssid1, password1, 5000);
     if (!connected){      
-       connected = ConnectToWifi(ssid2, password2, 15000);
+       connected = ConnectToWifi(ssid2, password2, 5000);
     }
        
     if (!connected) {
