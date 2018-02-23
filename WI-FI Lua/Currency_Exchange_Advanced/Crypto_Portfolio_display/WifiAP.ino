@@ -4,9 +4,6 @@ ESP8266WebServer server(80);
 bool serverMode = false;
 File fsUploadFile;              // a File object to temporarily store the received file
 
-//void handleRoot() {
-  //server.send(200, "text/html", "<h1>You are connected</h1>");
-//}
 
 void ResetDevice(){
   server.send(200, "text/html", "<h1>Restarting...</h1>");

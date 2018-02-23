@@ -37,14 +37,31 @@ bool loadConfig() {
   Serial.println(sName);
 
   JsonArray& hotspots = jsonConfig["hotspots"];
+  int i = 0;
   for (auto& hotspot : hotspots) {
-     const char* ssidSample = hotspot["ssid"];
-     const char* passwordSample = hotspot["password"];
+     
+     String ssidSample = hotspot["ssid"];
+     String passwordSample = hotspot["password"];
      Serial.println("ssid:");
      Serial.println(ssidSample);
      Serial.println("password:");
      Serial.println(passwordSample);
+     Hotspot h;
+     h.ssid = string2char(ssidSample);
+     h.password = string2char(passwordSample);
+     hot_spots[i] = h;
+     i++;
+     
   }
 
   return true;
+}
+
+char* string2char(String str){
+    char * writable = new char[str.length() + 1];
+    std::copy(str.begin(), str.end(), writable);
+    writable[str.length()] = '\0'; // don't forget the terminating 0
+    return writable;
+    // TODO:  don't forget to free the string after finished using it
+    // delete[] writable;
 }

@@ -24,6 +24,15 @@ char* password2 = "Suite 500";
 
 String totalPriceAsString = "";
 
+struct Hotspot
+{
+   char* ssid;
+   char* password;
+};
+
+Hotspot hot_spots[5];
+
+
 void setup() {
   Serial.begin(9600);
   delay(100); // wait for Serial to initialize properly.
@@ -31,8 +40,7 @@ void setup() {
   Serial.println("STARTING");
   SPIFFS.begin();  
   loadConfig();
-  
-  
+    
   if(!ConnectToWifi()){
     StartWifiAP();
     StartWebServer(); //TODO: Add TimeOut for the web server. Pass time in seconds to indicate when the server should stop.
@@ -42,11 +50,13 @@ void setup() {
 }
 
 bool ConnectToWifi(){
-    bool connected = ConnectToWifi(ssid1, password1, 5000);
-  if (!connected) {
-    connected = ConnectToWifi(ssid2, password2, 5000);
-  }
 
+  bool connected = false;
+  for(Hotspot hotspot : hot_spots){
+    if(connected) break;
+    connected = ConnectToWifi(hotspot.ssid, hotspot.password, 5000);     
+  }
+  
   if (!connected) {
     Serial.print("Failed to connect");
     DisplayMessage("Failed to connect" , "Sleeping for", "100 seconds...");
@@ -81,6 +91,10 @@ bool ConnectToWifi(char* ssid, char* password, int timeout) {
     delay(200);
     mseconds += 200;
     if (mseconds > timeout) {
+      Serial.println("failed to connect to wifi");
+      Serial.println(ssid);
+      Serial.println(password);
+      Serial.println("---");
       return false;
     }
   }
