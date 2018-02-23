@@ -14,11 +14,11 @@
 #include <FS.h>
 //#include <ESP8266WiFiMulti.h>
 
- 
-char* ssid2 = "Denis-wifi";
-char* password2 = "welcomehome";
-char* ssid1 = "PAI-Mobile";
-char* password1 = "Suite 500";
+IPAddress myIP;
+char* ssid1 = "Denis-wifi";
+char* password1 = "welcomehome";
+char* ssid2 = "PAI-Mobile";
+char* password2 = "Suite 500";
 //char* ssid1 = "Site 3";
 //char* password1 = "makestuff";
 
@@ -26,31 +26,42 @@ String totalPriceAsString = "";
 
 void setup() {
   Serial.begin(9600);
-  delay(100);
+  delay(100); // wait for Serial to initialize properly.
  
   Serial.println("STARTING");
   SPIFFS.begin();  
-  InitializeWifiAP();
-  Serial.println("CONNECTING TO WIFI");
-  ConnectToWifi();
+  loadConfig();
+  
+  
+  if(!ConnectToWifi()){
+    StartWifiAP();
+    StartWebServer(); //TODO: Add TimeOut for the web server. Pass time in seconds to indicate when the server should stop.
+  }
+
+  // TODO: Physical button for StartWebServer()
 }
 
-void ConnectToWifi(){
+bool ConnectToWifi(){
     bool connected = ConnectToWifi(ssid1, password1, 5000);
   if (!connected) {
     connected = ConnectToWifi(ssid2, password2, 5000);
   }
 
   if (!connected) {
-    Serial.print("Going DeepSleep");
+    Serial.print("Failed to connect");
     DisplayMessage("Failed to connect" , "Sleeping for", "100 seconds...");
-    ESP.deepSleep(100000); // go deepsleep for 100 sec and try all over again
+    //ESP.deepSleep(100000); // go deepsleep for 100 sec and try all over again
+    return false;
   }
 
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   DisplayMessage("IP", WiFi.localIP().toString());
+  
+
+  return true;
+  
 }
 
 bool ConnectToWifi(char* ssid, char* password, int timeout) {
@@ -58,8 +69,9 @@ bool ConnectToWifi(char* ssid, char* password, int timeout) {
   Serial.print("Connecting");
   Serial.println(ssid);
   DisplayMessage("Connecting", ssid);
+  //WiFi.setOutputPower(0); 
   WiFi.persistent(false);
-  WiFi.mode(WIFI_OFF);   // this is a temporary line, to be removed after SDK update to 1.5.4
+  WiFi.mode(WIFI_OFF);  
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
  

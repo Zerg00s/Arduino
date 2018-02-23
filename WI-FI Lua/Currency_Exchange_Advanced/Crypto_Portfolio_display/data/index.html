@@ -1,4 +1,46 @@
-<link rel="stylesheet" href="style.css">
-<h1>Hello from web server</h1>
+<html>
+<head>
+    <title>WIFI Settings</title>
+    <link href="main.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/favicon-144x144.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#00878f">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <style></style>
+</head>
+    <body>
+        <center>
+            <header>
+                <h1>WIFI SETTINGS</h1>
+            </header>
+            <div>
+                <p style="text-align: left">Use this page to connect to WIFI.<br> </p>
+                <form style="margin: 0px auto 8px auto" >
+                    <div>
+                        ssid     <input type="text" id="ssid"> <br>
+                        password <input type="text" id="password"> <br>
+                        <input class="button" type="button" onclick="save()" value="Save">
+                        <input class="button" type="button" onclick="clearWifiSsids()" value="Clear SSDs">
+                        <input class="button" type="button" onclick="getSsids()" value="Get SSIDs">
+                    </div>
+                </form>            
+            </div>
+        </center>
+        <script>
+            function save(){
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', '/UpdateWifiCredentials');
+                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                var ssid = document.getElementById("ssid").value;
+                var password = document.getElementById("password").value;
+                xhr.send('ssid="'+ssid+'"&password="'+password+'"');
+                console.log('saved!');
+            }
+        </script>
+        <script src="app.js"></script>
+    </body>
+</html>
 
-<script src="app.js"></script>

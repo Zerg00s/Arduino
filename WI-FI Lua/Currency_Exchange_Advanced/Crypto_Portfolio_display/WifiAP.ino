@@ -4,35 +4,48 @@ ESP8266WebServer server(80);
 bool serverMode = false;
 File fsUploadFile;              // a File object to temporarily store the received file
 
-void handleRoot() {
-  server.send(200, "text/html", "<h1>You are connected</h1>");
+//void handleRoot() {
+  //server.send(200, "text/html", "<h1>You are connected</h1>");
+//}
+
+void ResetDevice(){
+  server.send(200, "text/html", "<h1>Restarting...</h1>");
+  //ESP.deepSleep(1000); // go deepsleep for 100 sec and try all over again
+  //delay(2000);
+  ESP.restart();
 }
 
-
-void InitializeWifiAP(){
-  serverMode = true;
+void StartWifiAP(){
+  // TODO: use DNS
   //AP == access point
-  // STA  - station mode
+  // STA  - station mod
   //ESP8266 Wi-Fi Modes: Station vs. Access Point Using Arduino IDE:
-  //https://www.youtube.com/watch?v=uFjWKhScnVY
+  //https://www.youtube.com/watch?v=uFjWKhScnVYe
+  
   WiFi.mode(WIFI_AP);
   // STA - means our 8266 will just connect to WIFI
-  // AP - means our 8266 is a standalone server that other devices will connect to
+  // AP  - means our 8266 is a standalone server that other devices will connect to
   // AP_STA - means we are doing both modes
   WiFi.softAP(ssid, password);
-  IPAddress myIP = WiFi.softAPIP();
+  myIP = WiFi.softAPIP();  
   Serial.print("AP IP address: ");  
   Serial.println(myIP);
-  server.on("/", handleRoot);
-  server.on("/SetWifiSpot", SetWifiSpot);
-  server.on("/StopWifiSpot", StopWifiSpot);
+}
 
-  server.on("/upload", HTTP_GET, []() {                 // if the client requests the upload page
-    if (!handleFileRead("/upload.html"))                // send it if it exists
+void StartWebServer(){  
+  serverMode = true;
+  // server.on("/", handleRoot);
+  server.on("/UpdateWifiCredentials", UpdateWifiCredentials);
+  server.on("/StartWifiAP", StartWifiAP);
+  server.on("/StopWebServer", StopWebServer);
+  server.on("/ResetDevice", ResetDevice);
+
+  server.on("/edit", HTTP_GET, []() {                 // if the client requests the upload page
+    if (!handleFileRead("/edit.html"))                // send it if it exists
       server.send(404, "text/plain", "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
   });
 
-  server.on("/upload", HTTP_POST,                       // if the client posts to the upload page
+  server.on("/edit", HTTP_POST,                       // if the client posts to the upload page
     [](){ server.send(200); },                          // Send status 200 (OK) to tell the client we are ready to receive
     handleFileUpload                                    // Receive and save the file
   );
@@ -44,28 +57,25 @@ void InitializeWifiAP(){
   server.begin();
   Serial.println("HTTP server started");
 
-  
   while(serverMode){
     server.handleClient();
   }
 }
 
-void SetWifiSpot(){
+void UpdateWifiCredentials(){
   String received_ssid = server.arg("ssid"); 
   String received_password = server.arg("password");
   Serial.print("SSID: ");
   Serial.println(received_ssid);
   Serial.print("Password: ");
   Serial.println(received_password);
-  server.send(200, "text/html", "<h1>"+received_ssid+" saved</h1>");
+  server.send(200, "text/plain", received_ssid+" saved");
 }
 
-void StopWifiSpot(){
+void StopWebServer(){
   server.send(200, "text/html", "<h1>Wifi Hotspot stopped</h1>");
-  WiFi.disconnect(); 
   serverMode = false;
 }
-
 
  
 bool handleFileRead(String path){  // send the right file to the client (if it exists)
@@ -88,6 +98,7 @@ bool handleFileRead(String path){  // send the right file to the client (if it e
 
 
 void handleFileUpload(){ // upload a new file to the SPIFFS
+  Serial.print("Uploading file...");
   HTTPUpload& upload = server.upload();
   if(upload.status == UPLOAD_FILE_START){
     String filename = upload.filename;
@@ -128,9 +139,9 @@ String getContentType(String filename){
   return "text/plain";
 }
 
-
-//var xhr = new XMLHttpRequest();
-//xhr.open('post', '/setWifiSpot');
-//xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-//xhr.send('ssid="Denis-wifi"&password="welcomehome"');
+// How to update the SSID via the browser:
+// var xhr = new XMLHttpRequest();
+// xhr.open('post', '/UpdateWifiCredentials');
+// xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+// xhr.send('ssid="Denis-wifi"&password="welcomehome"');
 

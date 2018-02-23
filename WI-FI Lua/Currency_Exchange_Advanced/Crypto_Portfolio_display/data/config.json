@@ -1,0 +1,13 @@
+{
+    "hotspots":[
+        {
+            "ssid":"Denis-wifi",
+            "password":"welcomehome"
+        },
+        {
+            "ssid":"PAI-Mobile",
+            "password":"Suite 500"
+        }
+    ],
+    "name":"esp8266"    
+}
