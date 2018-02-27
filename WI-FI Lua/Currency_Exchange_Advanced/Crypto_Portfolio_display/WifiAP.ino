@@ -24,9 +24,8 @@ void StartWifiAP(){
   // AP  - means our 8266 is a standalone server that other devices will connect to
   // AP_STA - means we are doing both modes
   WiFi.softAP(ssid, password);
-  myIP = WiFi.softAPIP();  
-  Serial.print("AP IP address: ");  
-  Serial.println(myIP);
+  myIP = WiFi.softAPIP();
+  DisplayMessage("IP Addr", myIP.toString());
 }
 
 void StartWebServer(){  
@@ -70,6 +69,7 @@ void UpdateWifiCredentials(){
 }
 
 void StopWebServer(){
+  DisplayMessage("Server", "Stopped");
   server.send(200, "text/html", "<h1>Wifi Hotspot stopped</h1>");
   serverMode = false;
 }
@@ -136,7 +136,7 @@ String getContentType(String filename){
   return "text/plain";
 }
 
-// How to update the SSID via the browser:
+// Example. How to update the SSID via the browser:
 // var xhr = new XMLHttpRequest();
 // xhr.open('post', '/UpdateWifiCredentials');
 // xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');

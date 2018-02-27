@@ -62,6 +62,6 @@ char* string2char(String str){
     std::copy(str.begin(), str.end(), writable);
     writable[str.length()] = '\0'; // don't forget the terminating 0
     return writable;
-    // TODO:  don't forget to free the string after finished using it
+    // TODO:  don't forget to free the string after using it
     // delete[] writable;
 }

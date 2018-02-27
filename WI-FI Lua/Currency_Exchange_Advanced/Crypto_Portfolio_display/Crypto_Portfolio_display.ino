@@ -15,10 +15,10 @@
 //#include <ESP8266WiFiMulti.h>
 
 IPAddress myIP;
-char* ssid1 = "Denis-wifi";
-char* password1 = "welcomehome";
-char* ssid2 = "PAI-Mobile";
-char* password2 = "Suite 500";
+//char* ssid1 = "Denis-wifi";
+//char* password1 = "welcomehome";
+//char* ssid2 = "PAI-Mobile";
+//char* password2 = "Suite 500";
 //char* ssid1 = "Site 3";
 //char* password1 = "makestuff";
 
@@ -43,7 +43,9 @@ void setup() {
     
   if(!ConnectToWifi()){
     StartWifiAP();
-    StartWebServer(); //TODO: Add TimeOut for the web server. Pass time in seconds to indicate when the server should stop.
+    // StartWebServer has an infinite while loop while serverMode == true;
+    StartWebServer(); //TODO: Add TimeOut for the web server after which we just restart the 
+    // esp8266 device via ESP.restart(). Pass time in seconds to indicate when the server should stop.
   }
 
   // TODO: Physical button for StartWebServer()
@@ -58,8 +60,7 @@ bool ConnectToWifi(){
   }
   
   if (!connected) {
-    Serial.print("Failed to connect");
-    DisplayMessage("Failed to connect" , "Sleeping for", "100 seconds...");
+    DisplayMessage("Failed to connect" , "to WIFI", "");
     //ESP.deepSleep(100000); // go deepsleep for 100 sec and try all over again
     return false;
   }
@@ -178,7 +179,6 @@ float GetCryptoPrice(String rates, String symbol, float amount)
   }
 }
 
-
 String floatToString(float number)
 {
   char result[10];
@@ -186,7 +186,6 @@ String floatToString(float number)
   dtostrf(number, 6, 2, result);
   return result;
 }
-
 
 void DisplayMessage(String line1) {
   DisplayMessage(line1, "", "");
