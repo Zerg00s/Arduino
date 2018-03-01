@@ -74,9 +74,9 @@ void loop()
       ShowCard("Weather is good");
     }
 
-    else if (results.value == 16728765) { // 7
-      ShowCard("Shit happens");
-    }
+//    else if (results.value == 16728765) { // 7
+//      ShowCard("Shit happens");
+//    }
 
 //    else if (results.value == 16730805) { // 8
 //      ShowCard("Dang!");

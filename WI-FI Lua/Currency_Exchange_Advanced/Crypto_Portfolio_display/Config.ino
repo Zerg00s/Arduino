@@ -30,31 +30,86 @@ bool loadConfig() {
 
   const char* sName = jsonConfig["name"];
 
-  // Real world application would store these values in some variables for
-  // later use.
-
-  Serial.print("Loaded name: ");
-  Serial.println(sName);
-
   JsonArray& hotspots = jsonConfig["hotspots"];
-  int i = 0;
-  for (auto& hotspot : hotspots) {
-     
-     String ssidSample = hotspot["ssid"];
-     String passwordSample = hotspot["password"];
-     Serial.println("ssid:");
-     Serial.println(ssidSample);
-     Serial.println("password:");
-     Serial.println(passwordSample);
-     Hotspot h;
-     h.ssid = string2char(ssidSample);
-     h.password = string2char(passwordSample);
-     hot_spots[i] = h;
-     i++;
-     
-  }
+//  int i = 0;
+//  for (auto& hotspot : hotspots) {
+//     
+//     String ssidSample = hotspot["ssid"];
+//     String passwordSample = hotspot["password"];
+//     Serial.println("ssid:");
+//     Serial.println(ssidSample);
+//     Serial.println("password:");
+//     Serial.println(passwordSample);
+//     Hotspot h;
+//     h.ssid = string2char(ssidSample);
+//     h.password = string2char(passwordSample);
+//     hot_spots[i] = h;
+//     i++;
+//     
+//  }
 
   return true;
+}
+
+void LoadHotspots(){
+  File hotspotsFile = SPIFFS.open("/hotspots.txt", "r");
+  if (!hotspotsFile) {
+    Serial.println("Failed to open hotspots.txt file");
+  }
+  String hotspotsAsString;
+  while (hotspotsFile.available()){
+    hotspotsAsString += char(hotspotsFile.read());
+  }
+  Hotspot h;
+  h.ssid = SplitString(hotspotsAsString,'|',0);
+  h.password = SplitString(hotspotsAsString,'|',1);
+  hot_spots[0] = h;
+
+  Hotspot h2;
+  h2.ssid = "PAI-Mobile";
+  h2.password = "Suite 500";
+  hot_spots[1] = h2;
+  hotspotsFile.close();
+
+  // TODO: hotspots
+  // mode = hotspotsAsString;
+}
+
+void SaveHotSpots(String newSsid, String newPassword){
+    SPIFFS.remove("/hotspots.txt");
+    File hotspotsFile = SPIFFS.open("/hotspots.txt", "w");
+    if (!hotspotsFile) {
+        Serial.print("file open failed");
+    } else {
+        hotspotsFile.print(newSsid+"|"+newPassword);
+    }
+    hotspotsFile.close();
+}
+
+void SaveBootMode(String _mode){
+    SPIFFS.remove("/bootMode.json");
+    File modeFile = SPIFFS.open("/bootMode.json", "w");
+    if (!modeFile) {
+        Serial.print("file open failed");
+    } else {
+        modeFile.print(_mode);
+    }
+    modeFile.close();
+}
+
+void LoadBootMode(){
+  File modeFile = SPIFFS.open("/bootMode.json", "r");
+  if (!modeFile) {
+    Serial.println("Failed to open config file");
+    mode = "StandardMode";
+  }
+  String modeSaved;
+  while (modeFile.available()){
+    modeSaved += char(modeFile.read());
+  }
+  modeFile.close();
+
+  mode = modeSaved;
 }
 
 char* string2char(String str){
@@ -64,4 +119,21 @@ char* string2char(String str){
     return writable;
     // TODO:  don't forget to free the string after using it
     // delete[] writable;
+}
+
+
+String SplitString(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = { 0, -1 };
+    int maxIndex = data.length() - 1;
+
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }

@@ -22,43 +22,85 @@ IPAddress myIP;
 //char* ssid1 = "Site 3";
 //char* password1 = "makestuff";
 
+String mode;
+
 String totalPriceAsString = "";
 
 struct Hotspot
 {
-   char* ssid;
-   char* password;
+   String ssid;
+   String password;
 };
 
 Hotspot hot_spots[5];
 
-
 void setup() {
   Serial.begin(9600);
   delay(100); // wait for Serial to initialize properly.
- 
   Serial.println("STARTING");
+  pinMode(0, INPUT_PULLUP);//D3 same as GPIO0
+  pinMode(2, INPUT_PULLUP); //D4  same as GPIO2
+  pinMode(14, INPUT_PULLUP); //D5 same as GPIO14
+  attachInterrupt(digitalPinToInterrupt(0), BootStandardMode, FALLING);
+  attachInterrupt(digitalPinToInterrupt(2), BootAccessPointMode, FALLING);
+  attachInterrupt(digitalPinToInterrupt(14), BootWebServerMode, FALLING);
+
   SPIFFS.begin();  
-  loadConfig();
+  //loadConfig();
+  LoadHotspots();
+  LoadBootMode();
+
+
+  Serial.println("M O D E:");
+  Serial.println(mode);
     
-  if(!ConnectToWifi()){
+  if (mode == "StandardMode"){
+    DisplayMessage("Standard", "Mode"); delay(400);
+    ConnectToWifi();
+  }
+  else if (mode == "AccessPointMode"){
+    DisplayMessage("Hotspot", "Mode"); delay(400);
     StartWifiAP();
-    // StartWebServer has an infinite while loop while serverMode == true;
-    StartWebServer(); //TODO: Add TimeOut for the web server after which we just restart the 
-    // esp8266 device via ESP.restart(). Pass time in seconds to indicate when the server should stop.
+    StartWebServer();
+  }
+  else if (mode == "WebServerMode"){
+    DisplayMessage("Server","Mode"); delay(400);
+    ConnectToWifi();
+    StartWebServer(); 
+  }
+  else{
+    Serial.println("MODE:");
+    Serial.println(mode);
   }
 
-  // TODO: Physical button for StartWebServer()
+}
+
+void BootStandardMode(){
+  SaveBootMode("StandardMode");
+  ESP.restart();
+}
+
+void BootAccessPointMode(){
+  SaveBootMode("AccessPointMode");
+  ESP.restart();
+}
+
+void BootWebServerMode(){
+  //Serial.println(digitalRead(0));
+  SaveBootMode("WebServerMode");
+  ESP.restart();
 }
 
 bool ConnectToWifi(){
-
+  Serial.println("CONNECTING");
   bool connected = false;
   for(Hotspot hotspot : hot_spots){
+    Serial.println(hotspot.ssid);
     if(connected) break;
-    connected = ConnectToWifi(hotspot.ssid, hotspot.password, 5000);     
+    if(hotspot.ssid == NULL) continue;
+    connected = ConnectToWifi(string2char(hotspot.ssid), string2char(hotspot.password), 5000);     
   }
-  
+
   if (!connected) {
     DisplayMessage("Failed to connect" , "to WIFI", "");
     //ESP.deepSleep(100000); // go deepsleep for 100 sec and try all over again
@@ -70,9 +112,7 @@ bool ConnectToWifi(){
   Serial.println(WiFi.localIP());
   DisplayMessage("IP", WiFi.localIP().toString());
   
-
   return true;
-  
 }
 
 bool ConnectToWifi(char* ssid, char* password, int timeout) {
@@ -85,7 +125,6 @@ bool ConnectToWifi(char* ssid, char* password, int timeout) {
   WiFi.mode(WIFI_OFF);  
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
- 
 
   int mseconds = 0;
   while (WiFi.status() != WL_CONNECTED) {
@@ -120,7 +159,6 @@ String getCryptoQuote(String  baseCurrency, String  targetCurrencies){
       Serial.println("-------------");
       String payload = http.getString();
       return payload;
-
     }
   } else {
     Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
@@ -129,7 +167,10 @@ String getCryptoQuote(String  baseCurrency, String  targetCurrencies){
   http.end();
 }
 
+
+
 void loop() {
+  
   String rates = getCryptoQuote("CAD", "KCS,ETH,NEO,DENT,DRGN,PRL,DENT");
   float KCSPrice = GetCryptoPrice(rates, "KCS", 51.8);
   float NEOPrice = GetCryptoPrice(rates, "NEO", 5.96);

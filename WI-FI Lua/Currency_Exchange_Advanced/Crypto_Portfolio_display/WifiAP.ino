@@ -4,7 +4,6 @@ ESP8266WebServer server(80);
 bool serverMode = false;
 File fsUploadFile;              // a File object to temporarily store the received file
 
-
 void ResetDevice(){
   server.send(200, "text/html", "<h1>Restarting...</h1>");
   //ESP.deepSleep(1000); // go deepsleep for 100 sec and try all over again
@@ -25,7 +24,7 @@ void StartWifiAP(){
   // AP_STA - means we are doing both modes
   WiFi.softAP(ssid, password);
   myIP = WiFi.softAPIP();
-  DisplayMessage("IP Addr", myIP.toString());
+  DisplayMessage("IP Address", myIP.toString());
 }
 
 void StartWebServer(){  
@@ -66,6 +65,8 @@ void UpdateWifiCredentials(){
   Serial.print("Password: ");
   Serial.println(received_password);
   server.send(200, "text/plain", received_ssid+" saved");
+  SaveHotSpots(received_ssid, received_password);
+
 }
 
 void StopWebServer(){
