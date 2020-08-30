@@ -1,8 +1,9 @@
 #include <Servo.h>
+
 /*
     Full Tutorial
     https://steemit.com/utopian-io/@jbeguna04/simulating-servo-motors-in-arduino-nano-step-by-step-tutorial-how-to-program-arduino-nano-for-servo-motor
-    Servo can rotate approximately 180 degrees (90 in each direction)
+    Servo can rotate approximately 180 degrees (90 degrees in each direction)
 */
 Servo servo_top_pin_2;
 Servo servo_bottom_pin_3;
@@ -31,10 +32,11 @@ void resetServos()
   servo_bottom_pin_3.detach();
 }
 
-void rotateBothServos(int newTopAngle, int newBottomAngle, int delayMs)
+void rotateBothServos(int newTopAngle, int newBottomAngle, int delayMs, int speed)
 {
-  float topStepSize = (topServoAngle - newTopAngle) / 10;
-  float bottomStepSize = (bottomServoAngle - newBottomAngle) / 10;
+  int steps = 10;
+  float topStepSize = (topServoAngle - newTopAngle) / steps;
+  float bottomStepSize = (bottomServoAngle - newBottomAngle) / steps;
 
   Serial.println("------------");
   Serial.println(topServoAngle);
@@ -52,7 +54,7 @@ void rotateBothServos(int newTopAngle, int newBottomAngle, int delayMs)
 
   float tempTopServoAngle = topServoAngle;
   float tempBottomServoAngle = bottomServoAngle;
-  for (int i = 0; i < 10; i++)
+  for (int i = 0; i < steps; i++)
   {
     tempTopServoAngle -= topStepSize;
     tempBottomServoAngle -= bottomStepSize;
@@ -60,7 +62,7 @@ void rotateBothServos(int newTopAngle, int newBottomAngle, int delayMs)
     Serial.println(tempBottomServoAngle);
     servo_top_pin_2.write(round(tempTopServoAngle) );
     servo_bottom_pin_3.write(round(tempBottomServoAngle) );
-    delay(100);
+    delay(100/speed);
   }
 
   topServoAngle = round(tempTopServoAngle);
@@ -76,15 +78,57 @@ void rotateBothServos(int newTopAngle, int newBottomAngle, int delayMs)
 }
 
 
-void rotateServosRandomly(int delay) {
+void rotateServosRandomly(int delay, int speed) {
   int topServoAngle = random(60, 120);
   int bottomServoAngle = random(0, 180);
   Serial.println("rotateBothServos");
-  rotateBothServos(topServoAngle, bottomServoAngle, delay);
+  rotateBothServos(topServoAngle, bottomServoAngle, delay, speed);
 }
 
-void loop()
-{
-  int delay = random(350, 2500);
-  rotateServosRandomly(delay);
+void loop(){
+  int behaviourID = random(1,4);
+  int delay = 0;
+  int repetitions = 0;
+  Serial.println(behaviourID);
+  switch (behaviourID) {
+  case 1:
+    // rapid movements    
+    repetitions = random(10, 150);
+    for(int i= 0; i < repetitions; i++){ 
+      delay = random(1, 300);
+      rotateServosRandomly(delay, 100);
+    }
+  break;
+  case 2:
+    // fast movements    
+    repetitions = random(7, 50);
+    for(int i= 0; i < repetitions; i++){ 
+      delay = random(300, 1000);
+      rotateServosRandomly(delay, 2);
+    }
+    break;
+  case 3:
+    // normal movements    
+    repetitions = random(5, 15);
+    for(int i= 0; i < repetitions; i++){ 
+      delay = random(300, 2500);
+      rotateServosRandomly(delay, 1);
+    }
+  break;
+  case 4:
+    // Suudden Jerk movements
+    repetitions = random(5, 20);
+    for(int i= 0; i < repetitions; i++){ 
+      delay = random(1500, 4500);
+      rotateServosRandomly(delay, 100);
+    }
+  break;
+  default:
+    
+  break;
+}
+
+  
+  
+  
 }
